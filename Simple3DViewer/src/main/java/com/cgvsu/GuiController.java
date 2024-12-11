@@ -20,11 +20,12 @@ import java.io.File;
 import com.cgvsu.model.Model;
 import com.cgvsu.objreader.ObjReader;
 import com.cgvsu.render_engine.Camera;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 
 public class GuiController {
 
     final private float TRANSLATION = 0.5F;
-
 
     @FXML
     AnchorPane anchorPane;
@@ -33,7 +34,6 @@ public class GuiController {
     private Canvas canvas;
 
     private Model mesh = null;
-
     private Camera camera = new Camera(
             new Vector3f(0, 0, 5000),
             new Vector3f(0, 0, 0),
@@ -41,7 +41,8 @@ public class GuiController {
 
     private Timeline timeline;
 
-
+    private double prevMouseX, prevMouseY; // Для отслеживания начальных координат мыши
+    private boolean isMousePressed = false; // Флаг для отслеживания нажатия мыши
 
     @FXML
     private void initialize() {
@@ -65,8 +66,51 @@ public class GuiController {
 
         timeline.getKeyFrames().add(frame);
         timeline.play();
+
+        // Обработка нажатия и отпускания кнопки мыши
+        canvas.setOnMousePressed(this::onMousePressed);
+        canvas.setOnMouseReleased(this::onMouseReleased);
+        canvas.setOnMouseDragged(this::onMouseDragged);
+        canvas.setOnScroll(this::onMouseScroll);
     }
 
+    // Событие для нажатия мыши
+    private void onMousePressed(MouseEvent event) {
+        prevMouseX = event.getSceneX();
+        prevMouseY = event.getSceneY();
+        isMousePressed = true; // Устанавливаем флаг нажатия
+    }
+
+    // Событие для отпускания кнопки мыши
+    private void onMouseReleased(MouseEvent event) {
+        isMousePressed = false; // Сбрасываем флаг нажатия
+    }
+
+    // Событие для перетаскивания мыши (вращение камеры)
+    private void onMouseDragged(MouseEvent event) {
+        if (isMousePressed) {
+            double deltaX = event.getSceneX() - prevMouseX;
+            double deltaY = event.getSceneY() - prevMouseY;
+
+            camera.rotate(deltaX, deltaY);
+
+            prevMouseX = event.getSceneX();
+            prevMouseY = event.getSceneY();
+        }
+    }
+
+
+
+    // Событие для прокрутки колесика мыши (изменение зума)
+    private void onMouseScroll(ScrollEvent event) {
+        if (event.getDeltaY() > 0) {
+            camera.zoomIn();
+        } else {
+            camera.zoomOut();
+        }
+    }
+
+    // Остальные методы для работы с камерами и моделью
     @FXML
     private void onOpenModelMenuItemClick() {
         FileChooser fileChooser = new FileChooser();
@@ -83,7 +127,6 @@ public class GuiController {
         try {
             String fileContent = Files.readString(fileName);
             mesh = ObjReader.read(fileContent);
-            // todo: обработка ошибок
         } catch (IOException exception) {
             exception.printStackTrace();
         }

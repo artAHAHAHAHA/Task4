@@ -209,4 +209,17 @@ public class Matrix4f implements Matrix<Matrix4f, Vector4f> {
         };
         return new Matrix4f(matrix);
     }
+
+    public static Matrix4f rotationMatrixX(double angle) {
+        double cos = Math.cos(angle);
+        double sin = Math.sin(angle);
+        return new Matrix4f(new double[][]{{1, 0, 0, 0}, {0, cos, -sin, 0}, {0, sin, cos, 0}, {0, 0, 0, 1}});
+    }
+
+    public static Matrix4f rotationMatrixY(double angle) {
+        double cos = Math.cos(angle);
+        double sin = Math.sin(angle);
+        return new Matrix4f(new double[][]{{cos, 0, sin, 0}, {0, 1, 0, 0}, {-sin, 0, cos, 0}, {0, 0, 0, 1}});
+    }
+
 }
