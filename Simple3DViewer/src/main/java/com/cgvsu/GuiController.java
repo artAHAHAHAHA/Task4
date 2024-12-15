@@ -2,16 +2,19 @@ package com.cgvsu;
 
 import com.cgvsu.render_engine.RenderEngine;
 import com.cgvsu.math.vectors.Vector3f;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.event.ActionEvent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.io.IOException;
@@ -20,8 +23,6 @@ import java.io.File;
 import com.cgvsu.model.Model;
 import com.cgvsu.objreader.ObjReader;
 import com.cgvsu.render_engine.Camera;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 
 public class GuiController {
 
@@ -72,7 +73,12 @@ public class GuiController {
         canvas.setOnMouseReleased(this::onMouseReleased);
         canvas.setOnMouseDragged(this::onMouseDragged);
         canvas.setOnScroll(this::onMouseScroll);
+
+
+        // Убедитесь, что Canvas может получать фокус для отслеживания клавиш
+        canvas.setFocusTraversable(true);
     }
+
 
     // Событие для нажатия мыши
     private void onMousePressed(MouseEvent event) {
@@ -86,20 +92,19 @@ public class GuiController {
         isMousePressed = false; // Сбрасываем флаг нажатия
     }
 
-    // Событие для перетаскивания мыши (вращение камеры)
+    // Событие для перетаскивания мыши (вращение камеры или перемещение камеры)
     private void onMouseDragged(MouseEvent event) {
         if (isMousePressed) {
             double deltaX = event.getSceneX() - prevMouseX;
             double deltaY = event.getSceneY() - prevMouseY;
 
+            // Вращение камеры на основе движения мыши
             camera.rotate(deltaX, deltaY);
 
             prevMouseX = event.getSceneX();
             prevMouseY = event.getSceneY();
         }
     }
-
-
 
     // Событие для прокрутки колесика мыши (изменение зума)
     private void onMouseScroll(ScrollEvent event) {
@@ -109,6 +114,7 @@ public class GuiController {
             camera.zoomOut();
         }
     }
+
 
     // Остальные методы для работы с камерами и моделью
     @FXML
@@ -132,11 +138,11 @@ public class GuiController {
         }
     }
 
+
     @FXML
     public void handleCameraForward(ActionEvent actionEvent) {
         camera.movePosition(new Vector3f(0, 0, -TRANSLATION));
     }
-
     @FXML
     public void handleCameraBackward(ActionEvent actionEvent) {
         camera.movePosition(new Vector3f(0, 0, TRANSLATION));
@@ -161,4 +167,5 @@ public class GuiController {
     public void handleCameraDown(ActionEvent actionEvent) {
         camera.movePosition(new Vector3f(0, -TRANSLATION, 0));
     }
+
 }

@@ -2,6 +2,7 @@ package com.cgvsu.render_engine;
 
 import com.cgvsu.math.vectors.Vector3f;
 import com.cgvsu.math.matrix.Matrix4f;
+import com.cgvsu.math.vectors.Vector4f;
 
 public class Camera {
 
@@ -19,6 +20,7 @@ public class Camera {
         this.nearPlane = nearPlane;
         this.farPlane = farPlane;
     }
+
 
     public void setPosition(final Vector3f position) {
         this.position = position;
@@ -41,15 +43,15 @@ public class Camera {
     }
 
     public void movePosition(final Vector3f translation) {
-        this.position = this.position.add(translation);
+        this.position.add(translation);
     }
 
     public void moveTarget(final Vector3f translation) {
         this.target = this.target.add(translation);
     }
 
-    Matrix4f getViewMatrix() {
-        return GraphicConveyor.lookAt(position, target);
+    public Matrix4f getViewMatrix() {
+        return GraphicConveyor.lookAt(position, target, new Vector3f(0F, 1.0F, 0F));
     }
 
     Matrix4f getProjectionMatrix() {
@@ -63,37 +65,49 @@ public class Camera {
     private float nearPlane;
     private float farPlane;
 
-    public void rotate(double deltaX, double deltaY) {
-        // Вращение камеры вокруг целевой точки (target)
-        Vector3f direction = new Vector3f(position.getX(), position.getY(), position.getZ());
-        direction.subtract(position, target); // Используем метод экземпляра для изменения текущего объекта
-        double radius = direction.getLength();
+        public void rotate(double deltaX, double deltaY) {
 
-        double theta = Math.atan2(position.getZ() - target.getZ(), position.getX() - target.getX());
-        double phi = Math.acos((position.getY() - target.getY()) / radius);
+            Vector3f direction = position.subtract(target);
 
-        // Изменяем углы на основе движения мыши с уменьшенной чувствительностью
-        theta += deltaX * 0.00001; // Поменяем знак для направления по горизонтали
-        phi -= deltaY * 0.00001; // Поменяем знак для направления по вертикали
+            Vector3f up = new Vector3f(0, 1, 0);
+            Vector3f right = up.cross(direction);
+            right.normalize();
+            up.normalize();
 
-        // Ограничиваем углы, чтобы избежать полярного сингулярного положения камеры
-        phi = Math.max(0.01, Math.min(Math.PI - 0.01, phi));
 
-        // Пересчитываем положение камеры
-        double x = radius * Math.sin(phi) * Math.cos(theta);
-        double y = radius * Math.cos(phi);
-        double z = radius * Math.sin(phi) * Math.sin(theta);
+            // Создаем матрицы вращения вокруг осей "right" и "up"
+            Matrix4f rotationX = Matrix4f.rotateAroundAxis(right, (float) (-deltaY * 0.01));
+            Matrix4f rotationY = Matrix4f.rotateAroundAxis(up, (float) (-deltaX * 0.01));
 
-        position = new Vector3f(target.getX() + x, target.getY() + y, target.getZ() + z);
-    }
+
+            // Преобразуем direction (Vector3f) в Vector4f для умножения
+            Vector4f direction4f = new Vector4f(direction.getX(), direction.getY(), direction.getZ(), 1.0);
+            direction4f = rotationX.multiplyingMatrixByVector(direction4f);
+            direction4f = rotationY.multiplyingMatrixByVector(direction4f);
+            direction = new Vector3f(direction4f.getX(), direction4f.getY(), direction4f.getZ());
+
+            position = target.add(direction);
+        }
 
 
     // Методы для увеличения и уменьшения зума
     public void zoomIn() {
-        this.position = this.position.add(new Vector3f(0, 0, -100));
-    } // Уменьшаем расстояние по оси Z
+        Vector3f direction = new Vector3f(position.getX(), position.getY(), position.getZ());
+        direction.subtract(position, target);
+        direction.normalize();
+        direction.multiplyingVectorByScalar(-100);
+        position = position.add(direction);
+    }
 
     public void zoomOut() {
-        this.position = this.position.add(new Vector3f(0, 0, 100)); // Увеличиваем расстояние по оси Z
+        Vector3f direction = new Vector3f(position.getX(), position.getY(), position.getZ());
+        direction.subtract(position, target);
+        direction.normalize();
+        direction.multiplyingVectorByScalar(100);
+        position = position.add(direction);
+
+
     }
+
+
 }
