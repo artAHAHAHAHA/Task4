@@ -36,7 +36,7 @@ public class GuiController {
 
     private Model mesh = null;
     private Camera camera = new Camera(
-            new Vector3f(0, 0, 5000),
+            new Vector3f(0, 0, 100),
             new Vector3f(0, 0, 0),
             1.0F, 1, 0.01F, 100);
 
@@ -74,11 +74,8 @@ public class GuiController {
         canvas.setOnMouseDragged(this::onMouseDragged);
         canvas.setOnScroll(this::onMouseScroll);
 
-
-        // Убедитесь, что Canvas может получать фокус для отслеживания клавиш
         canvas.setFocusTraversable(true);
     }
-
 
     // Событие для нажатия мыши
     private void onMousePressed(MouseEvent event) {
@@ -86,37 +83,6 @@ public class GuiController {
         prevMouseY = event.getSceneY();
         isMousePressed = true; // Устанавливаем флаг нажатия
     }
-
-    // Событие для отпускания кнопки мыши
-    private void onMouseReleased(MouseEvent event) {
-        isMousePressed = false; // Сбрасываем флаг нажатия
-    }
-
-    // Событие для перетаскивания мыши (вращение камеры или перемещение камеры)
-    private void onMouseDragged(MouseEvent event) {
-        if (isMousePressed) {
-            double deltaX = event.getSceneX() - prevMouseX;
-            double deltaY = event.getSceneY() - prevMouseY;
-
-            // Вращение камеры на основе движения мыши
-            camera.rotate(deltaX, deltaY);
-
-            prevMouseX = event.getSceneX();
-            prevMouseY = event.getSceneY();
-        }
-    }
-
-    // Событие для прокрутки колесика мыши (изменение зума)
-    private void onMouseScroll(ScrollEvent event) {
-        if (event.getDeltaY() > 0) {
-            camera.zoomIn();
-        } else {
-            camera.zoomOut();
-        }
-    }
-
-
-    // Остальные методы для работы с камерами и моделью
     @FXML
     private void onOpenModelMenuItemClick() {
         FileChooser fileChooser = new FileChooser();
@@ -168,4 +134,35 @@ public class GuiController {
         camera.movePosition(new Vector3f(0, -TRANSLATION, 0));
     }
 
+    // Событие для отпускания кнопки мыши
+    private void onMouseReleased(MouseEvent event) {
+        isMousePressed = false; // Сбрасываем флаг нажатия
+    }
+
+    // Событие для перетаскивания мыши (вращение камеры или перемещение камеры)
+    private void onMouseDragged(MouseEvent event) {
+        if (isMousePressed) {
+            double deltaX = event.getSceneX() - prevMouseX;
+            double deltaY = event.getSceneY() - prevMouseY;
+
+            // Вращение камеры на основе движения мыши
+            camera.rotate(deltaX, deltaY);
+
+            prevMouseX = event.getSceneX();
+            prevMouseY = event.getSceneY();
+        }
+    }
+
+    // Событие для прокрутки колесика мыши (изменение зума)
+    private void onMouseScroll(ScrollEvent event) {
+        if (event.getDeltaY() > 0) {
+            camera.zoomIn();
+        } else {
+            camera.zoomOut();
+        }
+    }
+
 }
+
+
+

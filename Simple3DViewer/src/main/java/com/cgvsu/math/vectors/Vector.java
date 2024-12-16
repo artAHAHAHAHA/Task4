@@ -20,7 +20,6 @@ public interface Vector<T> {
 
     double getLength();
     void normalize();
-
     double scalarMultiplication(T other);
 
 }

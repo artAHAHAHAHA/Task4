@@ -19,13 +19,14 @@ public class RenderEngine {
             final int width,
             final int height)
     {
-        Matrix4f scaleMatrix = Matrix4f.scale(1.0, 1.0, 1.0);
+        Matrix4f scaleMatrix = Matrix4f.scale(0.02,0.02,0.02);
         Matrix4f rotateMatrix = Matrix4f.rotate(0);
         Matrix4f translateMatrix = Matrix4f.translate(0.0, 0.0, 0.0);
 
         Matrix4f modelMatrix = scaleMatrix
                 .multiply(rotateMatrix)
                 .multiply(translateMatrix);
+
 
         Matrix4f viewMatrix = camera.getViewMatrix();
         Matrix4f projectionMatrix = camera.getProjectionMatrix();
@@ -63,3 +64,6 @@ public class RenderEngine {
         }
     }
 }
+
+
+

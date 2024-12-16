@@ -1,7 +1,6 @@
 package com.cgvsu.render_engine;
 import com.cgvsu.math.vectors.Vector3f;
 import com.cgvsu.math.matrix.Matrix4f;
-
 import javax.vecmath.Point2f;
 
 public class GraphicConveyor {
@@ -11,26 +10,10 @@ public class GraphicConveyor {
         Vector3f resultZ = new Vector3f(eye.getX(), eye.getY(), eye.getZ());
         resultZ.subtract(eye, target);
 
-        if (resultZ.getLength() < 1e-3) {
-            System.out.println("Error: Eye and target are too close, can't calculate view matrix.");
-            return Matrix4f.setIdentity();
-        }
-
         resultZ.normalize();
-
 
         Vector3f resultX = new Vector3f(up.getX(), up.getY(), up.getZ());
         resultX.cross(up, resultZ);
-
-        if (resultX.getLength() < 1e-3) {
-
-            if (Math.abs(up.getX()) < Math.abs(up.getZ())) {
-                resultX = new Vector3f(0, 0, 1);
-            } else {
-                resultX = new Vector3f(1, 0, 0);
-            }
-            System.out.println("Up and direction vectors are too parallel. Using alternative right vector.");
-        }
 
         resultX.normalize();
 
@@ -46,7 +29,6 @@ public class GraphicConveyor {
 
         return new Matrix4f(matrix).transpose();
     }
-
 
     public static Matrix4f perspective(
             final double fov,
@@ -80,4 +62,7 @@ public class GraphicConveyor {
     public static Point2f vertexToPoint(final Vector3f vertex, final int width, final int height) {
         return new Point2f((float) (vertex.getX() * width + width / 2.0), (float) (-vertex.getY() * height + height / 2.0));
     }
+
 }
+
+
